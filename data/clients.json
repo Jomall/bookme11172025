@@ -1,0 +1,43 @@
+[
+  {
+    "id": "1",
+    "name": "John Doe",
+    "profilePhoto": "/images/john-doe.jpg",
+    "skills": ["Plumbing", "Electrical Work", "Carpentry"],
+    "services": [
+      {
+        "id": "s1",
+        "name": "Home Repairs",
+        "category": "industrial-services",
+        "description": "Comprehensive home repair services including plumbing, electrical, and carpentry."
+      }
+    ],
+    "contactInfo": {
+      "email": "john@example.com",
+      "phone": "+1234567890",
+      "address": "123 Main St, City, State"
+    },
+    "testimonials": [
+      {
+        "id": "t1",
+        "clientName": "Jane Smith",
+        "content": "Excellent work! Highly recommended.",
+        "date": "2023-10-01"
+      }
+    ],
+    "rating": 4.5,
+    "reviews": [
+      {
+        "id": "r1",
+        "reviewerName": "Bob Johnson",
+        "rating": 5,
+        "content": "Very professional and timely.",
+        "date": "2023-10-05"
+      }
+    ],
+    "photos": ["/images/work1.jpg", "/images/work2.jpg"],
+    "availability": "Mon-Fri 9AM-5PM",
+    "education": "Bachelor's in Engineering",
+    "experience": "10 years"
+  }
+]
