@@ -43,7 +43,7 @@ export default async function ClientPage({ params }: ClientPageProps) {
             <div className="flex items-center">
               <img
                 className="h-24 w-24 rounded-full mr-6"
-                src={client.profilePhoto || '/images/default-avatar.jpg'}
+                src={client.profilePhoto || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iNDgiIGZpbGw9IiNFNUU3RUIiLz4KPHBhdGggZD0iTTQ4IDQ4QzUyLjQxODMgNDggNTYgNDQuNDE4MyA1NiA0MEM1NiAzNS41ODE3IDUyLjQxODMgMzIgNDggMzJDNDMuNTgxNyAzMiA0MCAzNS41ODE3IDQwIDQwQzQwIDQ0LjQxODMgNDMuNTgxNyA0OC40MTgzIDQ4IDQ4WiIgZmlsbD0iIzlDQTQ5RiIvPgo8cGF0aCBkPSJNNzIgNjRDNzIgNTYuNjg2MyA2OC40MjcxIDUyIDYyIDUySDM0QzI3LjU3MjkgNTIgMjQgNTYuNjg2MyAyNCA2NFY2OEg3MloiIGZpbGw9IiM5Q0E0QUYiLz4KPC9zdmc+'}
                 alt={client.name}
               />
               <div>
@@ -160,13 +160,26 @@ export default async function ClientPage({ params }: ClientPageProps) {
                   <p><strong>Email:</strong> {client.contactInfo.email}</p>
                   <p><strong>Phone:</strong> {client.contactInfo.phone}</p>
                   <p><strong>Address:</strong> {client.contactInfo.address}</p>
+                  {client.contactInfo.website && (
+                    <p><strong>Website:</strong> <a href={client.contactInfo.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">{client.contactInfo.website}</a></p>
+                  )}
                 </div>
               </div>
 
               {/* Availability */}
               <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-xl font-semibold mb-4">Availability</h3>
-                <p>{client.availability}</p>
+                <div className="space-y-2">
+                  {Array.isArray(client.availability) ? (
+                    client.availability.map((slot, index) => (
+                      <div key={index} className="text-sm">
+                        <span className="font-medium capitalize">{slot.day}:</span> {slot.startTime} - {slot.endTime}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm">{client.availability || 'Not specified'}</p>
+                  )}
+                </div>
               </div>
 
               {/* Education */}
@@ -174,6 +187,35 @@ export default async function ClientPage({ params }: ClientPageProps) {
                 <h3 className="text-xl font-semibold mb-4">Education & Qualifications</h3>
                 <p>{client.education}</p>
               </div>
+
+              {/* Certificates */}
+              {client.certificates && client.certificates.length > 0 && (
+                <div className="bg-white shadow rounded-lg p-6">
+                  <h3 className="text-xl font-semibold mb-4">Certificates</h3>
+                  <div className="space-y-2">
+                    {client.certificates.map((certificate, index) => (
+                      <div key={index}>
+                        <a
+                          href={certificate}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline"
+                        >
+                          Certificate {index + 1}
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Price Range */}
+              {client.priceRange && (client.priceRange.min > 0 || client.priceRange.max > 0) && (
+                <div className="bg-white shadow rounded-lg p-6">
+                  <h3 className="text-xl font-semibold mb-4">Price Range</h3>
+                  <p>${client.priceRange.min} - ${client.priceRange.max}</p>
+                </div>
+              )}
 
               {/* Job Documents */}
               {client.services.some(service => service.category === 'passive-job-seeking') && client.jobDocuments && (client.jobDocuments.cv || client.jobDocuments.applicationLetter || client.jobDocuments.cvFile || client.jobDocuments.applicationLetterFile) && (

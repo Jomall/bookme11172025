@@ -40,7 +40,7 @@ export default function EditClientPage() {
           name: client.name,
           companyName: client.companyName || '',
           profilePhoto: client.profilePhoto || '',
-          skills: client.skills.join(', '),
+          skills: Array.isArray(client.skills) ? client.skills.join(', ') : '',
           services: client.services.length > 0 ? client.services : [{ id: '', name: '', description: '', category: 'industrial-services' as ServiceCategory }],
           contactInfo: client.contactInfo,
           testimonials: client.testimonials.length > 0 ? client.testimonials : [{ id: '', content: '', clientName: '', date: '' }],
@@ -266,6 +266,21 @@ export default function EditClientPage() {
                     type="url"
                     value={formData.profilePhoto}
                     onChange={(e) => setFormData({ ...formData, profilePhoto: e.target.value })}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="https://example.com/photo.jpg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Or Upload Profile Photo</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setFormData({ ...formData, profilePhoto: file.name });
+                      }
+                    }}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
@@ -658,23 +673,42 @@ export default function EditClientPage() {
               </div>
               <div className="space-y-4">
                 {formData.photos.map((photo, index) => (
-                  <div key={index} className="flex items-center space-x-4">
-                    <div className="flex-1">
-                      <label className="block text-sm font-medium text-gray-700">Photo URL {index + 1}</label>
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700">Photo URL {index + 1}</label>
+                        <input
+                          type="url"
+                          value={photo}
+                          onChange={(e) => updatePhoto(index, e.target.value)}
+                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          placeholder="https://example.com/photo.jpg"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="mt-6 text-red-600 hover:text-red-900"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Or Upload Photo {index + 1}</label>
                       <input
-                        type="url"
-                        value={photo}
-                        onChange={(e) => updatePhoto(index, e.target.value)}
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const updatedPhotos = [...formData.photos];
+                            updatedPhotos[index] = file.name;
+                            setFormData({ ...formData, photos: updatedPhotos });
+                          }
+                        }}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                       />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removePhoto(index)}
-                      className="mt-6 text-red-600 hover:text-red-900"
-                    >
-                      Remove
-                    </button>
                   </div>
                 ))}
               </div>

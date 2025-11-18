@@ -14,14 +14,16 @@ export default function NewClientPage() {
     profilePhoto: '',
     skills: '',
     services: [{ name: '', description: '', category: 'industrial-services' as ServiceCategory }],
-    contactInfo: { email: '', phone: '', address: '' },
+    contactInfo: { email: '', phone: '', address: '', website: '' },
     testimonials: [{ content: '', clientName: '', date: '' }],
     reviews: [{ content: '', reviewerName: '', rating: 5, date: '' }],
     photos: [''],
-    availability: '',
+    availability: [{ day: 'monday' as const, startTime: '', endTime: '' }],
     education: '',
     experience: '',
     rating: 5,
+    certificates: [''],
+    priceRange: { min: 0, max: 0 },
     jobDocuments: { cv: '', applicationLetter: '', cvFile: '', applicationLetterFile: '' },
   });
 
@@ -58,10 +60,13 @@ export default function NewClientPage() {
           date: review.date,
         })),
         photos: formData.photos.filter(photo => photo.trim()),
-        availability: formData.availability,
+        availability: formData.availability.filter(slot => slot.day && slot.startTime && slot.endTime),
         education: formData.education,
         experience: formData.experience,
         rating: formData.rating,
+        certificates: formData.certificates.filter(certificate => certificate.trim()),
+        priceRange: formData.priceRange.min > 0 || formData.priceRange.max > 0 ? formData.priceRange : undefined,
+
         jobDocuments: hasJobSeekingService ? {
           cv: formData.jobDocuments.cv,
           applicationLetter: formData.jobDocuments.applicationLetter,
@@ -200,8 +205,8 @@ export default function NewClientPage() {
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Basic Information */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+            <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Basic Information</h3>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -210,7 +215,7 @@ export default function NewClientPage() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
                 <div>
@@ -228,6 +233,21 @@ export default function NewClientPage() {
                     type="url"
                     value={formData.profilePhoto}
                     onChange={(e) => setFormData({ ...formData, profilePhoto: e.target.value })}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="https://example.com/photo.jpg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Or Upload Profile Photo</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setFormData({ ...formData, profilePhoto: URL.createObjectURL(file) });
+                      }
+                    }}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
@@ -265,8 +285,8 @@ export default function NewClientPage() {
             </div>
 
             {/* Contact Information */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
+            <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Contact Information</h3>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -305,16 +325,29 @@ export default function NewClientPage() {
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700">Website</label>
+                <input
+                  type="url"
+                  value={formData.contactInfo.website}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    contactInfo: { ...formData.contactInfo, website: e.target.value }
+                  })}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="https://example.com"
+                />
+              </div>
             </div>
 
             {/* Services */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Services</h3>
+            <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 border-b-2 border-indigo-500 pb-2">Services</h3>
                 <button
                   type="button"
                   onClick={addService}
-                  className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium shadow-md"
                 >
                   Add Service
                 </button>
@@ -366,6 +399,13 @@ export default function NewClientPage() {
                           <option value="house-cleaner">House Cleaner</option>
                           <option value="car-washing">Car Washing</option>
                           <option value="passive-job-seeking">Passive Job Seeking</option>
+                          <option value="barber-hairdresser">Barber/Hairdresser</option>
+                          <option value="nail-tech">Nail Tech</option>
+                          <option value="doctor">Doctor</option>
+                          <option value="lawyer">Lawyer</option>
+                          <option value="landscaper">Landscaper</option>
+                          <option value="taxi">Taxi</option>
+                          <option value="dentist">Dentist</option>
                         </select>
                       </div>
                     </div>
@@ -385,8 +425,8 @@ export default function NewClientPage() {
 
             {/* Job Documents */}
             {hasJobSeekingService && (
-              <div className="bg-white shadow rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Job Documents</h3>
+              <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Job Documents</h3>
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">CV/Resume URL</label>
@@ -453,17 +493,87 @@ export default function NewClientPage() {
             )}
 
             {/* Additional Information */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
+            <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Additional Information</h3>
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Availability</label>
-                  <textarea
-                    value={formData.availability}
-                    onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
-                    rows={3}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  />
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-md font-medium">Availability</h4>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, availability: [...formData.availability, { day: 'monday' as const, startTime: '', endTime: '' }] })}
+                      className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm"
+                    >
+                      Add Time Slot
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    {formData.availability.map((slot, index) => (
+                      <div key={index} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-4">
+                          <h5 className="text-sm font-medium">Time Slot {index + 1}</h5>
+                          <button
+                            type="button"
+                            onClick={() => setFormData({
+                              ...formData,
+                              availability: formData.availability.filter((_, i) => i !== index)
+                            })}
+                            className="text-red-600 hover:text-red-900 text-sm"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">Day</label>
+                            <select
+                              value={slot.day}
+                              onChange={(e) => {
+                                const updatedAvailability = [...formData.availability];
+                                updatedAvailability[index] = { ...updatedAvailability[index], day: e.target.value as typeof slot.day };
+                                setFormData({ ...formData, availability: updatedAvailability });
+                              }}
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                              <option value="monday">Monday</option>
+                              <option value="tuesday">Tuesday</option>
+                              <option value="wednesday">Wednesday</option>
+                              <option value="thursday">Thursday</option>
+                              <option value="friday">Friday</option>
+                              <option value="saturday">Saturday</option>
+                              <option value="sunday">Sunday</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">Start Time</label>
+                            <input
+                              type="time"
+                              value={slot.startTime}
+                              onChange={(e) => {
+                                const updatedAvailability = [...formData.availability];
+                                updatedAvailability[index] = { ...updatedAvailability[index], startTime: e.target.value };
+                                setFormData({ ...formData, availability: updatedAvailability });
+                              }}
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">End Time</label>
+                            <input
+                              type="time"
+                              value={slot.endTime}
+                              onChange={(e) => {
+                                const updatedAvailability = [...formData.availability];
+                                updatedAvailability[index] = { ...updatedAvailability[index], endTime: e.target.value };
+                                setFormData({ ...formData, availability: updatedAvailability });
+                              }}
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Education & Qualifications</label>
@@ -474,17 +584,102 @@ export default function NewClientPage() {
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Price Range (Min - Max)</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="number"
+                      placeholder="Min Price"
+                      value={formData.priceRange.min}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        priceRange: { ...formData.priceRange, min: parseInt(e.target.value) || 0 }
+                      })}
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Max Price"
+                      value={formData.priceRange.max}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        priceRange: { ...formData.priceRange, max: parseInt(e.target.value) || 0 }
+                      })}
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-md font-medium">Certificates</h4>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, certificates: [...formData.certificates, ''] })}
+                      className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm"
+                    >
+                      Add Certificate
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    {formData.certificates.map((certificate, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700">Certificate URL {index + 1}</label>
+                            <input
+                              type="url"
+                              value={certificate}
+                              onChange={(e) => {
+                                const updatedCertificates = [...formData.certificates];
+                                updatedCertificates[index] = e.target.value;
+                                setFormData({ ...formData, certificates: updatedCertificates });
+                              }}
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                              placeholder="https://example.com/certificate.pdf"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setFormData({
+                              ...formData,
+                              certificates: formData.certificates.filter((_, i) => i !== index)
+                            })}
+                            className="mt-6 text-red-600 hover:text-red-900"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Or Upload Certificate {index + 1}</label>
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const updatedCertificates = [...formData.certificates];
+                                updatedCertificates[index] = URL.createObjectURL(file);
+                                setFormData({ ...formData, certificates: updatedCertificates });
+                              }
+                            }}
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Testimonials */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Testimonials</h3>
+            <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 border-b-2 border-indigo-500 pb-2">Testimonials</h3>
                 <button
                   type="button"
                   onClick={addTestimonial}
-                  className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium shadow-md"
                 >
                   Add Testimonial
                 </button>
@@ -537,13 +732,13 @@ export default function NewClientPage() {
             </div>
 
             {/* Reviews */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Reviews</h3>
+            <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 border-b-2 border-indigo-500 pb-2">Reviews</h3>
                 <button
                   type="button"
                   onClick={addReview}
-                  className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium shadow-md"
                 >
                   Add Review
                 </button>
@@ -607,36 +802,55 @@ export default function NewClientPage() {
             </div>
 
             {/* Photos */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Work Photos</h3>
+            <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 border-b-2 border-indigo-500 pb-2">Work Photos</h3>
                 <button
                   type="button"
                   onClick={addPhoto}
-                  className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium shadow-md"
                 >
                   Add Photo
                 </button>
               </div>
               <div className="space-y-4">
                 {formData.photos.map((photo, index) => (
-                  <div key={index} className="flex items-center space-x-4">
-                    <div className="flex-1">
-                      <label className="block text-sm font-medium text-gray-700">Photo URL {index + 1}</label>
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700">Photo URL {index + 1}</label>
+                        <input
+                          type="url"
+                          value={photo}
+                          onChange={(e) => updatePhoto(index, e.target.value)}
+                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          placeholder="https://example.com/photo.jpg"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="mt-6 text-red-600 hover:text-red-900"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Or Upload Photo {index + 1}</label>
                       <input
-                        type="url"
-                        value={photo}
-                        onChange={(e) => updatePhoto(index, e.target.value)}
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const updatedPhotos = [...formData.photos];
+                            updatedPhotos[index] = file.name;
+                            setFormData({ ...formData, photos: updatedPhotos });
+                          }
+                        }}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                       />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removePhoto(index)}
-                      className="mt-6 text-red-600 hover:text-red-900"
-                    >
-                      Remove
-                    </button>
                   </div>
                 ))}
               </div>

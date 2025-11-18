@@ -13,9 +13,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const client: Client = await request.json();
+    const clientData: Omit<Client, 'id'> = await request.json();
+    const client: Client = {
+      id: Math.random().toString(36).substr(2, 9),
+      ...clientData,
+    };
     addClient(client);
-    return NextResponse.json({ message: 'Client added successfully' }, { status: 201 });
+    return NextResponse.json({ message: 'Client added successfully', id: client.id }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to add client' }, { status: 500 });
   }

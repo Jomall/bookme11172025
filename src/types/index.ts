@@ -9,14 +9,24 @@ export interface Client {
     email: string;
     phone: string;
     address: string;
+    website?: string;
   };
   testimonials: Testimonial[];
   rating: number;
   reviews: Review[];
   photos: string[];
-  availability: string;
+  availability: Array<{
+    day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+    startTime: string;
+    endTime: string;
+  }>;
   education: string;
   experience: string; // e.g., "5 years"
+  certificates: string[];
+  priceRange?: {
+    min: number;
+    max: number;
+  };
   jobDocuments?: {
     cv: string;
     applicationLetter: string;
@@ -47,7 +57,14 @@ export type ServiceCategory =
   | 'transportation-logistics'
   | 'chemical-pharmaceutical'
   | 'food-beverage'
-  | 'other-specialized-industrial';
+  | 'other-specialized-industrial'
+  | 'barber-hairdresser'
+  | 'nail-tech'
+  | 'doctor'
+  | 'lawyer'
+  | 'landscaper'
+  | 'taxi'
+  | 'dentist';
 
 export interface Testimonial {
   id: string;

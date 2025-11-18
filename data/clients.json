@@ -3,7 +3,11 @@
     "id": "1",
     "name": "John Doe",
     "profilePhoto": "/images/john-doe.jpg",
-    "skills": ["Plumbing", "Electrical Work", "Carpentry"],
+    "skills": [
+      "Plumbing",
+      "Electrical Work",
+      "Carpentry"
+    ],
     "services": [
       {
         "id": "s1",
@@ -35,9 +39,43 @@
         "date": "2023-10-05"
       }
     ],
-    "photos": ["/images/work1.jpg", "/images/work2.jpg"],
+    "photos": [
+      "/images/work1.jpg",
+      "/images/work2.jpg"
+    ],
     "availability": "Mon-Fri 9AM-5PM",
     "education": "Bachelor's in Engineering",
     "experience": "10 years"
+  },
+  {
+    "id": "fbxz6o6sn",
+    "name": "Jomall Jason Jack",
+    "companyName": "Tech-Net Solutions",
+    "profilePhoto": "",
+    "skills": [
+      "IT",
+      "Auto",
+      "Building"
+    ],
+    "services": [
+      {
+        "id": "g61zfef0l",
+        "name": "IT",
+        "category": "industrial-services",
+        "description": ""
+      }
+    ],
+    "contactInfo": {
+      "email": "jomalljack@hotmail.com",
+      "phone": "7844937614",
+      "address": "Sion Hill Bay"
+    },
+    "testimonials": [],
+    "reviews": [],
+    "photos": [],
+    "availability": "",
+    "education": "",
+    "experience": "5 years",
+    "rating": 5
   }
 ]
