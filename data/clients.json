@@ -51,9 +51,19 @@
     "id": "fbxz6o6sn",
     "name": "Jomall Jason Jack",
     "companyName": "Tech-Net Solutions",
-    "profilePhoto": "",
-    "skills": [],
-    "services": [],
+    "profilePhoto": "blob:http://localhost:3000/62eab65d-7f41-4fa0-a291-8fd11370222f",
+    "skills": [
+      "fixing",
+      "programming"
+    ],
+    "services": [
+      {
+        "id": "ywoauunq5",
+        "name": "fix scales ",
+        "category": "industrial-services",
+        "description": ""
+      }
+    ],
     "contactInfo": {
       "email": "jomalljack@hotmail.com",
       "phone": "7844937614",
@@ -62,6 +72,8 @@
     "testimonials": [],
     "reviews": [],
     "photos": [],
-    "availability": ""
+    "availability": "",
+    "experience": "5 years ",
+    "rating": 5
   }
 ]

@@ -14,20 +14,19 @@ export default function EditClientPage() {
     name: '',
     companyName: '',
     profilePhoto: '',
-    profilePhotoUrl: '',
     skills: '',
-    services: [{ name: '', description: '', category: 'industrial-services' as ServiceCategory }],
+    services: [{ id: '', name: '', description: '', category: 'industrial-services' as ServiceCategory }],
     contactInfo: { email: '', phone: '', address: '' },
-    testimonials: [{ content: '', clientName: '', date: '' }],
-    reviews: [{ content: '', reviewerName: '', rating: 5, date: '' }],
+    testimonials: [{ id: '', content: '', clientName: '', date: '' }],
+    reviews: [{ id: '', content: '', reviewerName: '', rating: 5, date: '' }],
     photos: [''],
     availability: '',
     education: '',
     experience: '',
     rating: 5,
     jobDocuments: { cv: '', applicationLetter: '', cvFile: '', applicationLetterFile: '' },
+    certificates: [],
   });
-  const [profilePhotoPreview, setProfilePhotoPreview] = useState('');
 
   useEffect(() => {
     fetchClient();
@@ -39,7 +38,7 @@ export default function EditClientPage() {
       if (response.ok) {
         const client: Client = await response.json();
         setFormData({
-          name: client.name,
+          name: client.name || '',
           companyName: client.companyName || '',
           profilePhoto: client.profilePhoto || '',
           skills: Array.isArray(client.skills) ? client.skills.join(', ') : '',
@@ -49,10 +48,11 @@ export default function EditClientPage() {
           reviews: (client.reviews && Array.isArray(client.reviews) && client.reviews.length > 0) ? client.reviews : [{ id: '', content: '', reviewerName: '', rating: 5, date: '' }],
           photos: (client.photos && Array.isArray(client.photos) && client.photos.length > 0) ? client.photos : [''],
           availability: Array.isArray(client.availability) ? client.availability.map(slot => `${slot.day}: ${slot.startTime}-${slot.endTime}`).join('\n') : '',
-          education: client.education,
-          experience: client.experience,
-          rating: client.rating,
+          education: client.education || '',
+          experience: client.experience || '',
+          rating: client.rating || 5,
           jobDocuments: client.jobDocuments || { cv: '', applicationLetter: '', cvFile: '', applicationLetterFile: '' },
+          certificates: client.certificates || [],
         });
       }
     } catch (error) {
@@ -72,7 +72,7 @@ export default function EditClientPage() {
         name: formData.name,
         companyName: formData.companyName || undefined,
         profilePhoto: formData.profilePhoto,
-        skills: formData.skills.split(',').map(skill => skill.trim()).filter(skill => skill),
+        skills: String(formData.skills || '').split(',').map(skill => skill.trim()).filter(skill => skill),
         services: formData.services.filter(service => service.name.trim()).map(service => ({
           id: service.id || Math.random().toString(36).substr(2, 9),
           name: service.name,
@@ -94,10 +94,15 @@ export default function EditClientPage() {
           date: review.date,
         })),
         photos: formData.photos.filter(photo => photo.trim()),
-        availability: formData.availability,
+        availability: (typeof formData.availability === 'string' ? formData.availability : '').split('\n').map(line => {
+          const [day, times] = line.split(': ');
+          const [startTime, endTime] = times.split('-');
+          return { day: day as 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday', startTime, endTime };
+        }).filter(slot => slot.day && slot.startTime && slot.endTime),
         education: formData.education,
         experience: formData.experience,
         rating: formData.rating,
+        certificates: formData.certificates,
         jobDocuments: formData.services.some(service => service.category === 'passive-job-seeking') ? {
           cv: formData.jobDocuments.cv,
           applicationLetter: formData.jobDocuments.applicationLetter,
@@ -130,7 +135,7 @@ export default function EditClientPage() {
   const addService = () => {
     setFormData({
       ...formData,
-      services: [...formData.services, { name: '', description: '', category: 'industrial-services' as ServiceCategory }],
+      services: [...formData.services, { id: '', name: '', description: '', category: 'industrial-services' as ServiceCategory }],
     });
   };
 
@@ -170,7 +175,7 @@ export default function EditClientPage() {
   const addReview = () => {
     setFormData({
       ...formData,
-      reviews: [...formData.reviews, { content: '', reviewerName: '', rating: 5, date: '' }],
+      reviews: [...formData.reviews, { id: '', content: '', reviewerName: '', rating: 5, date: '' }],
     });
   };
 
@@ -265,11 +270,11 @@ export default function EditClientPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Profile Photo URL</label>
                   <input
-                    type="url"
+                    type="text"
                     value={formData.profilePhoto}
                     onChange={(e) => setFormData({ ...formData, profilePhoto: e.target.value })}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="https://example.com/photo.jpg"
+                    placeholder="https://example.com/photo.jpg or data URL"
                   />
                 </div>
                 <div>
@@ -280,7 +285,11 @@ export default function EditClientPage() {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        setFormData({ ...formData, profilePhoto: URL.createObjectURL(file) });
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                          setFormData({ ...formData, profilePhoto: e.target.result as string });
+                        };
+                        reader.readAsDataURL(file);
                       }
                     }}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
@@ -703,9 +712,13 @@ export default function EditClientPage() {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            const updatedPhotos = [...formData.photos];
-                            updatedPhotos[index] = file.name;
-                            setFormData({ ...formData, photos: updatedPhotos });
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                              const updatedPhotos = [...formData.photos];
+                              updatedPhotos[index] = e.target.result as string;
+                              setFormData({ ...formData, photos: updatedPhotos });
+                            };
+                            reader.readAsDataURL(file);
                           }
                         }}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
