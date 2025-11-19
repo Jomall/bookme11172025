@@ -267,16 +267,7 @@ export default function EditClientPage() {
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Profile Photo URL</label>
-                  <input
-                    type="text"
-                    value={formData.profilePhoto}
-                    onChange={(e) => setFormData({ ...formData, profilePhoto: e.target.value })}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="https://example.com/photo.jpg or data URL"
-                  />
-                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Or Upload Profile Photo</label>
                   <input
