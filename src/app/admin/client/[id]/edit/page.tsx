@@ -14,6 +14,7 @@ export default function EditClientPage() {
     name: '',
     companyName: '',
     profilePhoto: '',
+    profilePhotoUrl: '',
     skills: '',
     services: [{ name: '', description: '', category: 'industrial-services' as ServiceCategory }],
     contactInfo: { email: '', phone: '', address: '' },
