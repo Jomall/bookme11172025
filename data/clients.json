@@ -52,19 +52,8 @@
     "name": "Jomall Jason Jack",
     "companyName": "Tech-Net Solutions",
     "profilePhoto": "",
-    "skills": [
-      "IT",
-      "Auto",
-      "Building"
-    ],
-    "services": [
-      {
-        "id": "g61zfef0l",
-        "name": "IT",
-        "category": "industrial-services",
-        "description": ""
-      }
-    ],
+    "skills": [],
+    "services": [],
     "contactInfo": {
       "email": "jomalljack@hotmail.com",
       "phone": "7844937614",
@@ -73,9 +62,6 @@
     "testimonials": [],
     "reviews": [],
     "photos": [],
-    "availability": "",
-    "education": "",
-    "experience": "5 years",
-    "rating": 5
+    "availability": ""
   }
 ]

@@ -26,6 +26,7 @@ export default function EditClientPage() {
     rating: 5,
     jobDocuments: { cv: '', applicationLetter: '', cvFile: '', applicationLetterFile: '' },
   });
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState('');
 
   useEffect(() => {
     fetchClient();
@@ -42,7 +43,7 @@ export default function EditClientPage() {
           profilePhoto: client.profilePhoto || '',
           skills: Array.isArray(client.skills) ? client.skills.join(', ') : '',
           services: (client.services && Array.isArray(client.services) && client.services.length > 0) ? client.services : [{ id: '', name: '', description: '', category: 'industrial-services' as ServiceCategory }],
-          contactInfo: client.contactInfo,
+          contactInfo: client.contactInfo || { email: '', phone: '', address: '' },
           testimonials: (client.testimonials && Array.isArray(client.testimonials) && client.testimonials.length > 0) ? client.testimonials : [{ id: '', content: '', clientName: '', date: '' }],
           reviews: (client.reviews && Array.isArray(client.reviews) && client.reviews.length > 0) ? client.reviews : [{ id: '', content: '', reviewerName: '', rating: 5, date: '' }],
           photos: (client.photos && Array.isArray(client.photos) && client.photos.length > 0) ? client.photos : [''],
@@ -278,7 +279,7 @@ export default function EditClientPage() {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        setFormData({ ...formData, profilePhoto: file.name });
+                        setFormData({ ...formData, profilePhoto: URL.createObjectURL(file) });
                       }
                     }}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
