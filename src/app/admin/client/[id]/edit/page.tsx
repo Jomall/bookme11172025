@@ -94,7 +94,7 @@ export default function EditClientPage() {
           date: review.date,
         })),
         photos: formData.photos.filter(photo => photo.trim()),
-        availability: (typeof formData.availability === 'string' ? formData.availability : '').split('\n').map(line => {
+        availability: (String(formData.availability || '')).split('\n').map(line => {
           const [day, times] = line.split(': ');
           const [startTime, endTime] = times.split('-');
           return { day: day as 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday', startTime, endTime };
@@ -294,6 +294,9 @@ export default function EditClientPage() {
                     }}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
+                  {formData.profilePhoto && formData.profilePhoto.startsWith('data:') && (
+                    <img src={formData.profilePhoto} alt="Profile Preview" className="mt-2 w-20 h-20 object-cover rounded-md" />
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Rating (1-5)</label>
@@ -536,6 +539,16 @@ export default function EditClientPage() {
                     onChange={(e) => setFormData({ ...formData, education: e.target.value })}
                     rows={3}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Certificates</label>
+                  <textarea
+                    value={formData.certificates.join('\n')}
+                    onChange={(e) => setFormData({ ...formData, certificates: e.target.value.split('\n').filter(cert => cert.trim()) })}
+                    rows={3}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Certificate 1\nCertificate 2\nCertificate 3"
                   />
                 </div>
               </div>

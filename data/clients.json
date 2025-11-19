@@ -75,5 +75,36 @@
     "availability": "",
     "experience": "5 years ",
     "rating": 5
+  },
+  {
+    "id": "2h1xfr56c",
+    "name": "Jomall Jason Jack",
+    "companyName": "Tech-Net Solutions",
+    "profilePhoto": "",
+    "skills": [
+      "hot"
+    ],
+    "services": [
+      {
+        "id": "4s6tktnls",
+        "name": "dff",
+        "category": "lawyer",
+        "description": ""
+      }
+    ],
+    "contactInfo": {
+      "email": "jomalljack@hotmail.com",
+      "phone": "7844937614",
+      "address": "Sion Hill Bay",
+      "website": ""
+    },
+    "testimonials": [],
+    "reviews": [],
+    "photos": [],
+    "availability": [],
+    "education": "",
+    "experience": "",
+    "rating": 5,
+    "certificates": []
   }
 ]
