@@ -2,8 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getClients, addClient, updateClient, deleteClient } from '@/lib/data';
 import { Client } from '@/types';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (id) {
+      const client = getClients().find(client => client.id === id);
+      if (!client) {
+        return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+      }
+      return NextResponse.json(client);
+    }
     const clients = getClients();
     return NextResponse.json(clients);
   } catch (error) {

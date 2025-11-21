@@ -43,7 +43,7 @@ export default async function ClientPage({ params }: ClientPageProps) {
             <div className="flex items-center">
               <img
                 className="h-24 w-24 rounded-full mr-6"
-                src={client.profilePhoto || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iNDgiIGZpbGw9IiNFNUU3RUIiLz4KPHBhdGggZD0iTTQ4IDQ4QzUyLjQxODMgNDggNTYgNDQuNDE4MyA1NiA0MEM1NiAzNS41ODE3IDUyLjQxODMgMzIgNDggMzJDNDMuNTgxNyAzMiA0MCAzNS41ODE3IDQwIDQwQzQwIDQ0LjQxODMgNDMuNTgxNyA0OC40MTgzIDQ4IDQ4WiIgZmlsbD0iIzlDQTQ5RiIvPgo8cGF0aCBkPSJNNzIgNjRDNzIgNTYuNjg2MyA2OC40MjcxIDUyIDYyIDUySDM0QzI3LjU3MjkgNTIgMjQgNTYuNjg2MyAyNCA2NFY2OEg3MloiIGZpbGw9IiM5Q0E0QUYiLz4KPC9zdmc+'}
+                src={client.profilePhoto && (client.profilePhoto.startsWith('data:') || client.profilePhoto.startsWith('http') || client.profilePhoto.startsWith('blob:') ? client.profilePhoto : client.profilePhoto.startsWith('/') ? client.profilePhoto : `/images/${client.profilePhoto}`) || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iNDgiIGZpbGw9IiNFNUU3RUIiLz4KPHBhdGggZD0iTTQ4IDQ4QzUyLjQxODMgNDggNTYgNDQuNDE4MyA1NiA0MEM1NiAzNS41ODE3IDUyLjQxODMgMzIgNDggMzJDNDMuNTgxNyAzMiA0MCAzNS41ODE3IDQwIDQwQzQwIDQ0LjQxODMgNDMuNTgxNyA0OC40MTgzIDQ4IDQ4WiIgZmlsbD0iIzlDQTQ5RiIvPgo8cGF0aCBkPSJNNzIgNjRDNzIgNTYuNjg2MyA2OC40MjcxIDUyIDYyIDUySDM0QzI3LjU3MjkgNTIgMjQgNTYuNjg2MyAyNCA2NFY2OEg3MloiIGZpbGw9IiM5Q0E0QUYiLz4KPC9zdmc+'}
                 alt={client.name}
               />
               <div>
@@ -52,6 +52,9 @@ export default async function ClientPage({ params }: ClientPageProps) {
                   <p className="text-gray-600">{client.companyName}</p>
                 )}
                 <p className="text-gray-600">{client.experience} experience</p>
+                {client.priceRange && (client.priceRange.min > 0 || client.priceRange.max > 0) && (
+                  <p className="text-gray-600">${client.priceRange.min} - ${client.priceRange.max}</p>
+                )}
                 <div className="flex items-center mt-2">
                   <span className="text-yellow-500">★</span>
                   <span className="ml-1 text-gray-700">{client.rating}/5</span>
@@ -98,13 +101,13 @@ export default async function ClientPage({ params }: ClientPageProps) {
               {client.photos.length > 0 && (
                 <div className="bg-white shadow rounded-lg p-6">
                   <h3 className="text-xl font-semibold mb-4">Work Photos</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {client.photos.map((photo, index) => (
                       <img
                         key={index}
-                        src={photo}
+                        src={photo.startsWith('data:') || photo.startsWith('http') ? photo : photo.startsWith('/') ? photo : `/images/${photo}`}
                         alt={`Work ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
+                        className="w-full h-24 object-contain rounded-lg"
                       />
                     ))}
                   </div>

@@ -1,11 +1,5 @@
-# TODO: Improve UI of Add New Client Page
+# TODO: Remove URL feature from Work Photos, keep only upload from device
 
 ## Tasks
-- [ ] Update headings to be bolder and more prominent.
-- [ ] Add highlighted fields with better borders and styling.
-- [ ] Improve structure with better spacing, shadows, and section separation for enhanced user visibility and experience.
-
-## Notes
-- Use Tailwind CSS classes to enhance styling.
-- Focus on sections like Basic Information, Contact Information, Services, Additional Information, etc.
-- Ensure responsive design is maintained.
+- [ ] Update photos section in edit client page (bookme/src/app/admin/client/[id]/edit/page.tsx) to remove URL input
+- [ ] Update photos section in new client page (bookme/src/app/admin/client/new/page.tsx) to remove URL input

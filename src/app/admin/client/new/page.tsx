@@ -8,16 +8,33 @@ import { Client, Service, ServiceCategory, Testimonial, Review } from '@/types';
 export default function NewClientPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    companyName: string;
+    profilePhoto: string;
+    skills: string;
+    services: { id: string; name: string; description: string; category: ServiceCategory }[];
+    contactInfo: { email: string; phone: string; address: string; website: string };
+    testimonials: { id: string; content: string; clientName: string; date: string }[];
+    reviews: { id: string; content: string; reviewerName: string; rating: number; date: string }[];
+    photos: string[];
+    availability: { day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'; startTime: string; endTime: string }[];
+    education: string;
+    experience: string;
+    rating: number;
+    certificates: string[];
+    priceRange: { min: number; max: number };
+    jobDocuments: { cv: string; applicationLetter: string; cvFile: string; applicationLetterFile: string };
+  }>({
     name: '',
     companyName: '',
     profilePhoto: '',
     skills: '',
-    services: [{ name: '', description: '', category: 'industrial-services' as ServiceCategory }],
+    services: [{ id: '', name: '', description: '', category: 'industrial-services' as ServiceCategory }],
     contactInfo: { email: '', phone: '', address: '', website: '' },
-    testimonials: [{ content: '', clientName: '', date: '' }],
-    reviews: [{ content: '', reviewerName: '', rating: 5, date: '' }],
-    photos: [''],
+    testimonials: [{ id: '', content: '', clientName: '', date: '' }],
+    reviews: [{ id: '', content: '', reviewerName: '', rating: 5, date: '' }],
+    photos: [],
     availability: [{ day: 'monday' as const, startTime: '', endTime: '' }],
     education: '',
     experience: '',
@@ -258,7 +275,7 @@ export default function NewClientPage() {
                     min="1"
                     max="5"
                     value={formData.rating}
-                    onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })}
+                    onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target?.value || '5') })}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>

@@ -10,7 +10,23 @@ export default function EditClientPage() {
   const params = useParams();
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    companyName: string;
+    profilePhoto: string;
+    skills: string;
+    services: { id: string; name: string; description: string; category: ServiceCategory }[];
+    contactInfo: { email: string; phone: string; address: string };
+    testimonials: { id: string; content: string; clientName: string; date: string }[];
+    reviews: { id: string; content: string; reviewerName: string; rating: number; date: string }[];
+    photos: string[];
+    availability: string;
+    education: string;
+    experience: string;
+    rating: number;
+    jobDocuments: { cv: string; applicationLetter: string; cvFile: string; applicationLetterFile: string };
+    certificates: string[];
+  }>({
     name: '',
     companyName: '',
     profilePhoto: '',
@@ -29,51 +45,88 @@ export default function EditClientPage() {
   });
 
   useEffect(() => {
-    fetchClient();
-  }, [params.id]);
-
-  const fetchClient = async () => {
-    try {
-      const response = await fetch(`/api/clients?id=${params.id}`);
-      if (response.ok) {
-        const client: Client = await response.json();
-        setFormData({
-          name: client.name || '',
-          companyName: client.companyName || '',
-          profilePhoto: client.profilePhoto || '',
-          skills: Array.isArray(client.skills) ? client.skills.join(', ') : '',
-          services: (client.services && Array.isArray(client.services) && client.services.length > 0) ? client.services : [{ id: '', name: '', description: '', category: 'industrial-services' as ServiceCategory }],
-          contactInfo: client.contactInfo || { email: '', phone: '', address: '' },
-          testimonials: (client.testimonials && Array.isArray(client.testimonials) && client.testimonials.length > 0) ? client.testimonials : [{ id: '', content: '', clientName: '', date: '' }],
-          reviews: (client.reviews && Array.isArray(client.reviews) && client.reviews.length > 0) ? client.reviews : [{ id: '', content: '', reviewerName: '', rating: 5, date: '' }],
-          photos: (client.photos && Array.isArray(client.photos) && client.photos.length > 0) ? client.photos : [''],
-          availability: Array.isArray(client.availability) ? client.availability.map(slot => `${slot.day}: ${slot.startTime}-${slot.endTime}`).join('\n') : '',
-          education: client.education || '',
-          experience: client.experience || '',
-          rating: client.rating || 5,
-          jobDocuments: client.jobDocuments || { cv: '', applicationLetter: '', cvFile: '', applicationLetterFile: '' },
-          certificates: client.certificates || [],
-        });
+    const loadClient = async () => {
+      try {
+        const p = await params;
+        const response = await fetch(`/api/clients?id=${p.id}`);
+        if (response.ok) {
+          const client: Client = await response.json();
+          setFormData({
+            name: client.name || '',
+            companyName: client.companyName || '',
+            profilePhoto: client.profilePhoto || '',
+            skills: Array.isArray(client.skills) ? client.skills.join(', ') : '',
+            services: (client.services && Array.isArray(client.services) && client.services.length > 0) ? client.services : [{ id: '', name: '', description: '', category: 'industrial-services' as ServiceCategory }],
+            contactInfo: client.contactInfo || { email: '', phone: '', address: '' },
+            testimonials: (client.testimonials && Array.isArray(client.testimonials) && client.testimonials.length > 0) ? client.testimonials : [{ id: '', content: '', clientName: '', date: '' }],
+            reviews: (client.reviews && Array.isArray(client.reviews) && client.reviews.length > 0) ? client.reviews : [{ id: '', content: '', reviewerName: '', rating: 5, date: '' }],
+            photos: (client.photos && Array.isArray(client.photos) && client.photos.length > 0) ? client.photos : [''],
+            availability: Array.isArray(client.availability) ? client.availability.map(slot => `${slot.day}: ${slot.startTime}-${slot.endTime}`).join('\n') : '',
+            education: client.education || '',
+            experience: client.experience || '',
+            rating: client.rating || 5,
+            jobDocuments: client.jobDocuments || { cv: '', applicationLetter: '', cvFile: '', applicationLetterFile: '' },
+            certificates: client.certificates || [],
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch client:', error);
+      } finally {
+        setFetchLoading(false);
       }
-    } catch (error) {
-      console.error('Failed to fetch client:', error);
-    } finally {
-      setFetchLoading(false);
-    }
-  };
+    };
+    loadClient();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Convert blob URLs to base64 for photos
+      const processedPhotos = await Promise.all(
+        formData.photos.filter(photo => photo.trim()).map(async (photo) => {
+          if (photo.startsWith('blob:')) {
+            try {
+              const response = await fetch(photo);
+              const blob = await response.blob();
+              return new Promise<string>((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.readAsDataURL(blob);
+              });
+            } catch (error) {
+              console.error('Failed to convert blob to base64:', error);
+              return photo; // Keep original if conversion fails
+            }
+          }
+          return photo;
+        })
+      );
+
+      // Convert blob URL to base64 for profile photo
+      let processedProfilePhoto = formData.profilePhoto;
+      if (formData.profilePhoto && formData.profilePhoto.startsWith('blob:')) {
+        try {
+          const response = await fetch(formData.profilePhoto);
+          const blob = await response.blob();
+          processedProfilePhoto = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
+        } catch (error) {
+          console.error('Failed to convert profile photo blob to base64:', error);
+        }
+      }
+
       const clientData: Client = {
         id: params.id as string,
         name: formData.name,
         companyName: formData.companyName || undefined,
-        profilePhoto: formData.profilePhoto,
-        skills: String(formData.skills || '').split(',').map(skill => skill.trim()).filter(skill => skill),
-        services: formData.services.filter(service => service.name.trim()).map(service => ({
+        profilePhoto: processedProfilePhoto,
+        skills: formData.skills ? String(formData.skills).split(',').map(skill => skill.trim()).filter(skill => skill) : [],
+        services: (formData.services || []).filter(service => service.name && service.name.trim()).map(service => ({
           id: service.id || Math.random().toString(36).substr(2, 9),
           name: service.name,
           category: service.category,
@@ -93,12 +146,16 @@ export default function EditClientPage() {
           content: review.content,
           date: review.date,
         })),
-        photos: formData.photos.filter(photo => photo.trim()),
+        photos: processedPhotos,
         availability: (String(formData.availability || '')).split('\n').map(line => {
-          const [day, times] = line.split(': ');
+          const trimmed = line.trim();
+          if (!trimmed) return null;
+          const [day, times] = trimmed.split(': ');
+          if (!day || !times) return null;
           const [startTime, endTime] = times.split('-');
+          if (!startTime || !endTime) return null;
           return { day: day as 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday', startTime, endTime };
-        }).filter(slot => slot.day && slot.startTime && slot.endTime),
+        }).filter((slot): slot is { day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday', startTime: string, endTime: string } => slot !== null),
         education: formData.education,
         experience: formData.experience,
         rating: formData.rating,
@@ -155,7 +212,7 @@ export default function EditClientPage() {
   const addTestimonial = () => {
     setFormData({
       ...formData,
-      testimonials: [...formData.testimonials, { content: '', clientName: '', date: '' }],
+      testimonials: [...formData.testimonials, { id: '', content: '', clientName: '', date: '' }],
     });
   };
 
@@ -296,7 +353,7 @@ export default function EditClientPage() {
                     min="1"
                     max="5"
                     value={formData.rating}
-                    onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })}
+                    onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target?.value || '5') })}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
@@ -691,28 +748,10 @@ export default function EditClientPage() {
                   <div key={index} className="space-y-2">
                     <div className="flex items-center space-x-4">
                       <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700">Photo URL {index + 1}</label>
+                        <label className="block text-sm font-medium text-gray-700">Upload Photo {index + 1}</label>
                         <input
-                          type="url"
-                          value={photo}
-                          onChange={(e) => updatePhoto(index, e.target.value)}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                          placeholder="https://example.com/photo.jpg"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(index)}
-                        className="mt-6 text-red-600 hover:text-red-900"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Or Upload Photo {index + 1}</label>
-                      <input
-                        type="file"
-                        accept="image/*"
+                          type="file"
+                          accept="image/*"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
@@ -725,8 +764,16 @@ export default function EditClientPage() {
                             reader.readAsDataURL(file);
                           }
                         }}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                      />
+                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="mt-6 text-red-600 hover:text-red-900"
+                      >
+                        Remove
+                      </button>
                     </div>
                   </div>
                 ))}
