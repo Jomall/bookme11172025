@@ -1,14 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Client } from '@/types';
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+      router.push('/admin/login');
+      return;
+    }
     fetchClients();
   }, []);
 
@@ -67,14 +75,27 @@ export default function AdminDashboard() {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Client Management</h2>
-            <Link
-              href="/admin/client/new"
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-            >
-              Add New Client
-            </Link>
+          <div className="mb-6">
+            <div className="flex items-center space-x-4 mb-4">
+              <Link
+                href="/"
+                className="flex items-center text-indigo-600 hover:text-indigo-800"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Home
+              </Link>
+            </div>
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Client Management</h2>
+              <Link
+                href="/admin/client/new"
+                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+              >
+                Add New Client
+              </Link>
+            </div>
           </div>
 
           <div className="bg-white shadow overflow-hidden sm:rounded-md">

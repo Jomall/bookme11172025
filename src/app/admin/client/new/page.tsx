@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Client, Service, ServiceCategory, Testimonial, Review } from '@/types';
@@ -8,15 +8,24 @@ import { Client, Service, ServiceCategory, Testimonial, Review } from '@/types';
 export default function NewClientPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+      router.push('/admin/login');
+      return;
+    }
+  }, [router]);
   const [formData, setFormData] = useState<{
     name: string;
     companyName: string;
     profilePhoto: string;
     skills: string;
-    services: { id: string; name: string; description: string; category: ServiceCategory }[];
+    services: Service[];
     contactInfo: { email: string; phone: string; address: string; website: string };
     testimonials: { id: string; content: string; clientName: string; date: string }[];
-    reviews: { id: string; content: string; reviewerName: string; rating: number; date: string }[];
+    reviews: Review[];
     photos: string[];
     availability: { day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'; startTime: string; endTime: string }[];
     education: string;
@@ -25,6 +34,7 @@ export default function NewClientPage() {
     certificates: string[];
     priceRange: { min: number; max: number };
     jobDocuments: { cv: string; applicationLetter: string; cvFile: string; applicationLetterFile: string };
+    jobPreferences: string[];
   }>({
     name: '',
     companyName: '',
@@ -42,6 +52,7 @@ export default function NewClientPage() {
     certificates: [''],
     priceRange: { min: 0, max: 0 },
     jobDocuments: { cv: '', applicationLetter: '', cvFile: '', applicationLetterFile: '' },
+    jobPreferences: [],
   });
 
   const hasJobSeekingService = formData.services.some(service => service.category === 'passive-job-seeking');
@@ -57,7 +68,7 @@ export default function NewClientPage() {
         profilePhoto: formData.profilePhoto,
         skills: formData.skills.split(',').map(skill => skill.trim()).filter(skill => skill),
         services: formData.services.filter(service => service.name.trim()).map(service => ({
-          id: Math.random().toString(36).substr(2, 9),
+          id: service.id || Math.random().toString(36).substr(2, 9),
           name: service.name,
           category: service.category,
           description: service.description,
@@ -90,7 +101,8 @@ export default function NewClientPage() {
           cvFile: formData.jobDocuments.cvFile,
           applicationLetterFile: formData.jobDocuments.applicationLetterFile,
         } : undefined,
-      };
+        jobPreferences: hasJobSeekingService ? formData.jobPreferences : undefined,
+      } as Omit<Client, 'id'>;
 
       const response = await fetch('/api/clients', {
         method: 'POST',
@@ -116,7 +128,7 @@ export default function NewClientPage() {
   const addService = () => {
     setFormData({
       ...formData,
-      services: [...formData.services, { name: '', description: '', category: 'industrial-services' as ServiceCategory }],
+      services: [...formData.services, { id: '', name: '', description: '', category: 'industrial-services' as ServiceCategory }],
     });
   };
 
@@ -136,7 +148,7 @@ export default function NewClientPage() {
   const addTestimonial = () => {
     setFormData({
       ...formData,
-      testimonials: [...formData.testimonials, { content: '', clientName: '', date: '' }],
+      testimonials: [...formData.testimonials, { id: '', content: '', clientName: '', date: '' }],
     });
   };
 
@@ -156,7 +168,7 @@ export default function NewClientPage() {
   const addReview = () => {
     setFormData({
       ...formData,
-      reviews: [...formData.reviews, { content: '', reviewerName: '', rating: 5, date: '' }],
+      reviews: [...formData.reviews, { id: '', content: '', reviewerName: '', rating: 5, date: '' }],
     });
   };
 
@@ -216,6 +228,17 @@ export default function NewClientPage() {
       <main className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-6">
+            <div className="flex items-center space-x-4 mb-4">
+              <Link
+                href="/admin/dashboard"
+                className="flex items-center text-indigo-600 hover:text-indigo-800"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Dashboard
+              </Link>
+            </div>
             <h2 className="text-2xl font-bold text-gray-900">Add New Client</h2>
             <p className="text-gray-600">Create a new client profile with all portfolio information.</p>
           </div>
@@ -262,7 +285,12 @@ export default function NewClientPage() {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        setFormData({ ...formData, profilePhoto: URL.createObjectURL(file) });
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          const dataUrl = event.target?.result as string;
+                          setFormData({ ...formData, profilePhoto: dataUrl });
+                        };
+                        reader.readAsDataURL(file);
                       }
                     }}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
@@ -440,6 +468,9 @@ export default function NewClientPage() {
               </div>
             </div>
 
+            {/* Debug */}
+            <div>hasJobSeekingService: {hasJobSeekingService ? 'true' : 'false'}</div>
+
             {/* Job Documents */}
             {hasJobSeekingService && (
               <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
@@ -504,6 +535,38 @@ export default function NewClientPage() {
                       }}
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                     />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Job Preferences */}
+            {hasJobSeekingService && (
+              <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Job Preferences</h3>
+                <div className="space-y-4">
+                  <label className="block text-sm font-medium text-gray-700">Select your preferred job types (multiple selections allowed):</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    {['Full-time', 'Part-time', 'Contract', 'Temporary', 'Internship', 'Remote'].map((preference) => (
+                      <div key={preference} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={preference}
+                          checked={formData.jobPreferences?.includes(preference) || false}
+                          onChange={(e) => {
+                            const currentPreferences = formData.jobPreferences || [];
+                            const updatedPreferences = e.target.checked
+                              ? [...currentPreferences, preference]
+                              : currentPreferences.filter(p => p !== preference);
+                            setFormData({ ...formData, jobPreferences: updatedPreferences });
+                          }}
+                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor={preference} className="ml-2 block text-sm text-gray-900">
+                          {preference}
+                        </label>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -674,9 +737,14 @@ export default function NewClientPage() {
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const updatedCertificates = [...formData.certificates];
-                                updatedCertificates[index] = URL.createObjectURL(file);
-                                setFormData({ ...formData, certificates: updatedCertificates });
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  const dataUrl = event.target?.result as string;
+                                  const updatedCertificates = [...formData.certificates];
+                                  updatedCertificates[index] = dataUrl;
+                                  setFormData({ ...formData, certificates: updatedCertificates });
+                                };
+                                reader.readAsDataURL(file);
                               }
                             }}
                             className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"

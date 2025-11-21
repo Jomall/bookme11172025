@@ -25,7 +25,9 @@ export default function AdminLogin() {
       });
 
       if (response.ok) {
-        // For demo purposes, just redirect to dashboard
+        // Store auth token in localStorage
+        const data = await response.json();
+        localStorage.setItem('adminToken', data.token);
         router.push('/admin/dashboard');
       } else {
         const data = await response.json();

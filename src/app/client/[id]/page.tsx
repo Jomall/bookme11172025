@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { getClientById } from '@/lib/data';
-import { Client } from '@/types';
+import { Client, ContactRequest } from '@/types';
+import ContactForm from '@/components/ContactForm';
 
 interface ClientPageProps {
   params: Promise<{
@@ -38,6 +40,17 @@ export default async function ClientPage({ params }: ClientPageProps) {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
+          <div className="mb-6">
+            <Link
+              href="/"
+              className="flex items-center text-indigo-600 hover:text-indigo-800"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Home
+            </Link>
+          </div>
           {/* Profile Header */}
           <div className="bg-white shadow rounded-lg p-6 mb-6">
             <div className="flex items-center">
@@ -169,6 +182,9 @@ export default async function ClientPage({ params }: ClientPageProps) {
                 </div>
               </div>
 
+              {/* Contact Form */}
+              <ContactForm clientId={client.id} services={client.services} />
+
               {/* Availability */}
               <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-xl font-semibold mb-4">Availability</h3>
@@ -195,17 +211,41 @@ export default async function ClientPage({ params }: ClientPageProps) {
               {client.certificates && client.certificates.length > 0 && (
                 <div className="bg-white shadow rounded-lg p-6">
                   <h3 className="text-xl font-semibold mb-4">Certificates</h3>
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     {client.certificates.map((certificate, index) => (
                       <div key={index}>
-                        <a
-                          href={certificate}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline"
-                        >
-                          Certificate {index + 1}
-                        </a>
+                        {certificate.startsWith('data:') ? (
+                          certificate.startsWith('data:image/') ? (
+                            <div>
+                              <p className="text-sm font-medium mb-2">Certificate {index + 1}</p>
+                              <img
+                                src={certificate}
+                                alt={`Certificate ${index + 1}`}
+                                className="max-w-full h-auto border rounded"
+                              />
+                            </div>
+                          ) : (
+                            <div>
+                              <p className="text-sm font-medium mb-2">Certificate {index + 1}</p>
+                              <a
+                                href={certificate}
+                                download={`certificate-${index + 1}.${certificate.split(';')[0].split('/')[1]}`}
+                                className="text-blue-600 hover:text-blue-800 underline"
+                              >
+                                Download Certificate {index + 1}
+                              </a>
+                            </div>
+                          )
+                        ) : (
+                          <a
+                            href={certificate}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            View Certificate {index + 1}
+                          </a>
+                        )}
                       </div>
                     ))}
                   </div>
