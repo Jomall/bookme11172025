@@ -335,7 +335,7 @@ export default function EditClientPage() {
                       if (file) {
                         const reader = new FileReader();
                         reader.onload = (e) => {
-                          setFormData({ ...formData, profilePhoto: e.target.result as string });
+                          setFormData({ ...formData, profilePhoto: e.target?.result as string });
                         };
                         reader.readAsDataURL(file);
                       }
@@ -756,9 +756,9 @@ export default function EditClientPage() {
                           const file = e.target.files?.[0];
                           if (file) {
                             const reader = new FileReader();
-                            reader.onload = (e) => {
+                            reader.onload = () => {
                               const updatedPhotos = [...formData.photos];
-                              updatedPhotos[index] = e.target.result as string;
+                              updatedPhotos[index] = reader.result as string;
                               setFormData({ ...formData, photos: updatedPhotos });
                             };
                             reader.readAsDataURL(file);

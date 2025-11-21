@@ -85,3 +85,12 @@ export interface AdminCredentials {
   username: string;
   password: string;
 }
+
+export interface ContactRequest {
+  clientId: string;
+  name: string;
+  email: string;
+  phone?: string;
+  service?: string;
+  message: string;
+}
