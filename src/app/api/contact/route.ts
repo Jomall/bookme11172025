@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ContactRequest } from '@/types';
 
+// In-memory storage for contact requests
+let contactRequests: ContactRequest[] = [];
+
 export async function POST(request: NextRequest) {
   try {
     const body: ContactRequest = await request.json();
@@ -13,19 +16,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In a real application, you would send an email here
-    // For now, we'll just log the contact request
-    console.log('Contact request received:', {
-      clientId: body.clientId,
-      name: body.name,
-      email: body.email,
-      phone: body.phone,
-      service: body.service,
-      message: body.message,
+    // Store the contact request in memory
+    const contactWithTimestamp = {
+      ...body,
       timestamp: new Date().toISOString(),
-    });
+    };
+    contactRequests.push(contactWithTimestamp);
 
-    // You could also store this in a database or send via email service
+    // Log the contact request
+    console.log('Contact request received:', contactWithTimestamp);
 
     return NextResponse.json(
       { message: 'Contact request sent successfully' },

@@ -4,46 +4,42 @@ import { Client } from '@/types';
 
 const dataPath = path.join(process.cwd(), 'data', 'clients.json');
 
+// In-memory storage for clients
+let clientsData: Client[] = [];
+
+// Load initial data from file if available
+try {
+  const fileContents = fs.readFileSync(dataPath, 'utf8');
+  clientsData = JSON.parse(fileContents);
+} catch (error) {
+  console.error('Error loading initial clients data:', error);
+  clientsData = [];
+}
+
 export function getClients(): Client[] {
-  try {
-    const fileContents = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(fileContents);
-  } catch (error) {
-    console.error('Error reading clients data:', error);
-    return [];
-  }
+  return [...clientsData]; // Return a copy to prevent external mutation
 }
 
 export function saveClients(clients: Client[]): void {
-  try {
-    fs.writeFileSync(dataPath, JSON.stringify(clients, null, 2));
-  } catch (error) {
-    console.error('Error saving clients data:', error);
-  }
+  // In Vercel, we can't write to file system, so we just update in-memory
+  clientsData = [...clients];
 }
 
 export function getClientById(id: string): Client | undefined {
-  const clients = getClients();
-  return clients.find(client => client.id === id);
+  return clientsData.find(client => client.id === id);
 }
 
 export function addClient(client: Client): void {
-  const clients = getClients();
-  clients.push(client);
-  saveClients(clients);
+  clientsData.push(client);
 }
 
 export function updateClient(updatedClient: Client): void {
-  const clients = getClients();
-  const index = clients.findIndex(client => client.id === updatedClient.id);
+  const index = clientsData.findIndex(client => client.id === updatedClient.id);
   if (index !== -1) {
-    clients[index] = updatedClient;
-    saveClients(clients);
+    clientsData[index] = updatedClient;
   }
 }
 
 export function deleteClient(id: string): void {
-  const clients = getClients();
-  const filteredClients = clients.filter(client => client.id !== id);
-  saveClients(filteredClients);
+  clientsData = clientsData.filter(client => client.id !== id);
 }

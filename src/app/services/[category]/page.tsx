@@ -33,6 +33,13 @@ export default async function ServicesPage({ params }: ServicesPageProps) {
     'house-cleaner': 'House Cleaner',
     'car-washing': 'Car Washing',
     'passive-job-seeking': 'Passive Job Seeking',
+    'barber-hairdresser': 'Barber & Hairdresser',
+    'nail-tech': 'Nail Technician',
+    'doctor': 'Doctor',
+    'lawyer': 'Lawyer',
+    'landscaper': 'Landscaper',
+    'taxi': 'Taxi Service',
+    'dentist': 'Dentist',
   };
 
   return (
