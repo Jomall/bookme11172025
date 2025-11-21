@@ -2,22 +2,41 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { getClients } from '@/lib/data';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
+  const clients = getClients();
+
+  // Get unique services
+  const services = clients.flatMap(client => client.services);
+  const uniqueServices = Array.from(
+    new Set(services.map(service => service.name))
+  ).map(serviceName => {
+    const service = services.find(s => s.name === serviceName);
+    return {
+      name: serviceName,
+      category: service?.category,
+      href: `/services/${service?.category}`,
+      color: getCategoryColor(service?.category),
+    };
+  });
 
   const categories = [
-    { name: 'Industrial Services', href: '/services/industrial-services', color: 'bg-blue-500' },
-    { name: 'Ride Share', href: '/services/ride-share', color: 'bg-green-500' },
-    { name: 'Food Catering', href: '/services/food-catering', color: 'bg-yellow-500' },
-    { name: 'Party Planner', href: '/services/party-planner', color: 'bg-purple-500' },
-    { name: 'House Cleaner', href: '/services/house-cleaner', color: 'bg-pink-500' },
-    { name: 'Car Washing', href: '/services/car-washing', color: 'bg-indigo-500' },
-    { name: 'Job Seeking', href: '/services/passive-job-seeking', color: 'bg-red-500' },
+    { name: 'Industrial Services', href: '/services/industrial-services', color: 'bg-blue-500', category: 'industrial-services' },
+    { name: 'Ride Share', href: '/services/ride-share', color: 'bg-green-500', category: 'ride-share' },
+    { name: 'Food Catering', href: '/services/food-catering', color: 'bg-yellow-500', category: 'food-catering' },
+    { name: 'Party Planner', href: '/services/party-planner', color: 'bg-purple-500', category: 'party-planner' },
+    { name: 'House Cleaner', href: '/services/house-cleaner', color: 'bg-pink-500', category: 'house-cleaner' },
+    { name: 'Car Washing', href: '/services/car-washing', color: 'bg-indigo-500', category: 'car-washing' },
+    { name: 'Job Seeking', href: '/services/passive-job-seeking', color: 'bg-red-500', category: 'passive-job-seeking' },
   ];
 
-  const filteredCategories = categories.filter(category =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // Combine categories and services for search
+  const allItems = [...categories, ...uniqueServices];
+
+  const filteredItems = allItems.filter(item =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -56,7 +75,7 @@ export default function Home() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search for professionals by category..."
+                placeholder="Search for professionals by category or service..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
@@ -70,26 +89,56 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCategories.map((category) => (
+            {filteredItems.map((item) => (
               <Link
-                key={category.name}
-                href={category.href}
-                className={`${category.color} text-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow`}
+                key={item.name}
+                href={item.href}
+                className={`${item.color} text-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow`}
               >
-                <h3 className="text-xl font-semibold mb-2">{category.name}</h3>
-                <p className="text-sm opacity-90">Explore professionals in this category</p>
+                <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
+                <p className="text-sm opacity-90">
+                  {item.category ? 'Explore professionals offering this service' : 'Explore professionals in this category'}
+                </p>
               </Link>
             ))}
           </div>
 
-          {filteredCategories.length === 0 && searchTerm && (
+          {filteredItems.length === 0 && searchTerm && (
             <div className="text-center py-12">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No categories found</h3>
-              <p className="text-gray-600">Try searching for a different category.</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No services found</h3>
+              <p className="text-gray-600">Try searching for a different category or service.</p>
             </div>
           )}
         </div>
       </main>
     </div>
   );
+}
+
+function getCategoryColor(category?: string): string {
+  const colorMap: Record<string, string> = {
+    'industrial-services': 'bg-blue-500',
+    'ride-share': 'bg-green-500',
+    'food-catering': 'bg-yellow-500',
+    'party-planner': 'bg-purple-500',
+    'house-cleaner': 'bg-pink-500',
+    'car-washing': 'bg-indigo-500',
+    'passive-job-seeking': 'bg-red-500',
+    'manufacturing-production': 'bg-teal-500',
+    'construction-building': 'bg-orange-500',
+    'energy-utilities': 'bg-cyan-500',
+    'mining-extraction': 'bg-stone-500',
+    'transportation-logistics': 'bg-lime-500',
+    'chemical-pharmaceutical': 'bg-violet-500',
+    'food-beverage': 'bg-amber-500',
+    'other-specialized-industrial': 'bg-slate-500',
+    'barber-hairdresser': 'bg-rose-500',
+    'nail-tech': 'bg-fuchsia-500',
+    'doctor': 'bg-emerald-500',
+    'lawyer': 'bg-sky-500',
+    'landscaper': 'bg-green-600',
+    'taxi': 'bg-yellow-600',
+    'dentist': 'bg-blue-600',
+  };
+  return colorMap[category || ''] || 'bg-gray-500';
 }
