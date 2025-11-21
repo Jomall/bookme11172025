@@ -1,12 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getClients } from '@/lib/data';
+import { Client } from '@/types';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
-  const clients = getClients();
+  const [clients, setClients] = useState<Client[]>([]);
+
+  useEffect(() => {
+    fetch('/api/clients')
+      .then(res => res.json())
+      .then(data => setClients(data));
+  }, []);
 
   // Get unique services
   const services = clients.flatMap(client => client.services);
@@ -35,7 +41,7 @@ export default function Home() {
   // Combine categories and services for search
   const allItems = [...categories, ...uniqueServices];
 
-  const filteredItems = allItems.filter(item =>
+  const filteredItems = allItems.filter((item: any) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -89,7 +95,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
+            {filteredItems.map((item: any) => (
               <Link
                 key={item.name}
                 href={item.href}
