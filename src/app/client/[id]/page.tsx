@@ -127,6 +127,25 @@ export default async function ClientPage({ params }: ClientPageProps) {
                 </div>
               )}
 
+              {/* Videos */}
+              {client.videos.length > 0 && (
+                <div className="bg-white shadow rounded-lg p-6">
+                  <h3 className="text-xl font-semibold mb-4">Work Videos</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {client.videos.map((video, index) => (
+                      <video
+                        key={index}
+                        src={video.startsWith('data:') || video.startsWith('http') ? video : video.startsWith('/') ? video : `/videos/${video}`}
+                        controls
+                        className="w-full h-48 object-contain rounded-lg"
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Testimonials */}
               {client.testimonials.length > 0 && (
                 <div className="bg-white shadow rounded-lg p-6">

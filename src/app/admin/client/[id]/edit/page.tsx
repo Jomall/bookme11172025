@@ -20,6 +20,7 @@ export default function EditClientPage() {
     testimonials: { id: string; content: string; clientName: string; date: string }[];
     reviews: { id: string; content: string; reviewerName: string; rating: number; date: string }[];
     photos: string[];
+    videos: string[];
     availability: string;
     education: string;
     experience: string;
@@ -36,6 +37,7 @@ export default function EditClientPage() {
     testimonials: [{ id: '', content: '', clientName: '', date: '' }],
     reviews: [{ id: '', content: '', reviewerName: '', rating: 5, date: '' }],
     photos: [''],
+    videos: [''],
     availability: '',
     education: '',
     experience: '',
@@ -61,6 +63,7 @@ export default function EditClientPage() {
             testimonials: (client.testimonials && Array.isArray(client.testimonials) && client.testimonials.length > 0) ? client.testimonials : [{ id: '', content: '', clientName: '', date: '' }],
             reviews: (client.reviews && Array.isArray(client.reviews) && client.reviews.length > 0) ? client.reviews : [{ id: '', content: '', reviewerName: '', rating: 5, date: '' }],
             photos: (client.photos && Array.isArray(client.photos) && client.photos.length > 0) ? client.photos : [''],
+            videos: (client.videos && Array.isArray(client.videos) && client.videos.length > 0) ? client.videos : [''],
             availability: Array.isArray(client.availability) ? client.availability.map(slot => `${slot.day}: ${slot.startTime}-${slot.endTime}`).join('\n') : '',
             education: client.education || '',
             experience: client.experience || '',
@@ -147,6 +150,7 @@ export default function EditClientPage() {
           date: review.date,
         })),
         photos: processedPhotos,
+        videos: formData.videos.filter(video => video.trim()),
         availability: (String(formData.availability || '')).split('\n').map(line => {
           const trimmed = line.trim();
           if (!trimmed) return null;
@@ -266,6 +270,26 @@ export default function EditClientPage() {
     setFormData({
       ...formData,
       photos: formData.photos.filter((_, i) => i !== index),
+    });
+  };
+
+  const addVideo = () => {
+    setFormData({
+      ...formData,
+      videos: [...formData.videos, ''],
+    });
+  };
+
+  const updateVideo = (index: number, value: string) => {
+    const updatedVideos = [...formData.videos];
+    updatedVideos[index] = value;
+    setFormData({ ...formData, videos: updatedVideos });
+  };
+
+  const removeVideo = (index: number) => {
+    setFormData({
+      ...formData,
+      videos: formData.videos.filter((_, i) => i !== index),
     });
   };
 
@@ -770,6 +794,45 @@ export default function EditClientPage() {
                       <button
                         type="button"
                         onClick={() => removePhoto(index)}
+                        className="mt-6 text-red-600 hover:text-red-900"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Videos */}
+            <div className="bg-white shadow rounded-lg p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Work Videos</h3>
+                <button
+                  type="button"
+                  onClick={addVideo}
+                  className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 text-sm"
+                >
+                  Add Video
+                </button>
+              </div>
+              <div className="space-y-4">
+                {formData.videos.map((video, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700">Video URL {index + 1}</label>
+                        <input
+                          type="url"
+                          value={video}
+                          onChange={(e) => updateVideo(index, e.target.value)}
+                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          placeholder="https://example.com/video.mp4"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeVideo(index)}
                         className="mt-6 text-red-600 hover:text-red-900"
                       >
                         Remove

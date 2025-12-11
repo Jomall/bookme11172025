@@ -35,7 +35,7 @@ export default function Home() {
     { name: 'Party Planner', href: '/services/party-planner', color: 'bg-purple-500', category: 'party-planner' },
     { name: 'House Cleaner', href: '/services/house-cleaner', color: 'bg-pink-500', category: 'house-cleaner' },
     { name: 'Car Washing', href: '/services/car-washing', color: 'bg-indigo-500', category: 'car-washing' },
-    { name: 'Job Seeking', href: '/services/passive-job-seeking', color: 'bg-red-500', category: 'passive-job-seeking' },
+    { name: 'After Hours', href: '/services/after-hours', color: 'bg-red-500', category: 'after-hours' },
   ];
 
   // Combine categories and services for search

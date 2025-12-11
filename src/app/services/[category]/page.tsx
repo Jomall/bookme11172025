@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getClients } from '@/lib/data';
+import { getAllClients } from '@/lib/data';
 import { Client, ServiceCategory } from '@/types';
 
 interface ServicesPageProps {
@@ -10,7 +10,7 @@ interface ServicesPageProps {
 
 export default async function ServicesPage({ params }: ServicesPageProps) {
   const { category } = await params;
-  const clients = getClients();
+  const clients = getAllClients();
   const categoryKey = category as ServiceCategory;
 
   const filteredClients = clients.filter(client =>
@@ -33,6 +33,7 @@ export default async function ServicesPage({ params }: ServicesPageProps) {
     'house-cleaner': 'House Cleaner',
     'car-washing': 'Car Washing',
     'passive-job-seeking': 'Passive Job Seeking',
+    'after-hours': 'After Hours',
     'barber-hairdresser': 'Barber & Hairdresser',
     'nail-tech': 'Nail Technician',
     'doctor': 'Doctor',

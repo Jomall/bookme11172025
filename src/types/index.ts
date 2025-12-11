@@ -15,6 +15,7 @@ export interface Client {
   rating: number;
   reviews: Review[];
   photos: string[];
+  videos: string[];
   availability: Array<{
     day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
     startTime: string;
@@ -50,6 +51,7 @@ export type ServiceCategory =
   | 'house-cleaner'
   | 'car-washing'
   | 'passive-job-seeking'
+  | 'after-hours'
   | 'manufacturing-production'
   | 'construction-building'
   | 'energy-utilities'

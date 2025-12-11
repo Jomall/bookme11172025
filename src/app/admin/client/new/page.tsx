@@ -17,6 +17,7 @@ export default function NewClientPage() {
       return;
     }
   }, [router]);
+
   const [formData, setFormData] = useState<{
     name: string;
     companyName: string;
@@ -27,6 +28,7 @@ export default function NewClientPage() {
     testimonials: { id: string; content: string; clientName: string; date: string }[];
     reviews: Review[];
     photos: string[];
+    videos: string[];
     availability: { day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'; startTime: string; endTime: string }[];
     education: string;
     experience: string;
@@ -45,6 +47,7 @@ export default function NewClientPage() {
     testimonials: [{ id: '', content: '', clientName: '', date: '' }],
     reviews: [{ id: '', content: '', reviewerName: '', rating: 5, date: '' }],
     photos: [],
+    videos: [],
     availability: [{ day: 'monday' as const, startTime: '', endTime: '' }],
     education: '',
     experience: '',
@@ -88,6 +91,7 @@ export default function NewClientPage() {
           date: review.date,
         })),
         photos: formData.photos.filter(photo => photo.trim()),
+        videos: formData.videos.filter(video => video.trim()),
         availability: formData.availability.filter(slot => slot.day && slot.startTime && slot.endTime),
         education: formData.education,
         experience: formData.experience,
@@ -202,6 +206,26 @@ export default function NewClientPage() {
     setFormData({
       ...formData,
       photos: formData.photos.filter((_, i) => i !== index),
+    });
+  };
+
+  const addVideo = () => {
+    setFormData({
+      ...formData,
+      videos: [...formData.videos, ''],
+    });
+  };
+
+  const updateVideo = (index: number, value: string) => {
+    const updatedVideos = [...formData.videos];
+    updatedVideos[index] = value;
+    setFormData({ ...formData, videos: updatedVideos });
+  };
+
+  const removeVideo = (index: number) => {
+    setFormData({
+      ...formData,
+      videos: formData.videos.filter((_, i) => i !== index),
     });
   };
 
@@ -467,9 +491,6 @@ export default function NewClientPage() {
                 ))}
               </div>
             </div>
-
-            {/* Debug */}
-            <div>hasJobSeekingService: {hasJobSeekingService ? 'true' : 'false'}</div>
 
             {/* Job Documents */}
             {hasJobSeekingService && (
@@ -886,58 +907,118 @@ export default function NewClientPage() {
               </div>
             </div>
 
-            {/* Photos */}
+            {/* How It's Done */}
             <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 border-b-2 border-indigo-500 pb-2">Work Photos</h3>
-                <button
-                  type="button"
-                  onClick={addPhoto}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium shadow-md"
-                >
-                  Add Photo
-                </button>
+                <h3 className="text-2xl font-bold text-gray-900 border-b-2 border-indigo-500 pb-2">How It's Done</h3>
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    onClick={addPhoto}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium shadow-md"
+                  >
+                    Add Photo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addVideo}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium shadow-md"
+                  >
+                    Add Video
+                  </button>
+                </div>
               </div>
-              <div className="space-y-4">
-                {formData.photos.map((photo, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700">Photo URL {index + 1}</label>
-                        <input
-                          type="url"
-                          value={photo}
-                          onChange={(e) => updatePhoto(index, e.target.value)}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                          placeholder="https://example.com/photo.jpg"
-                        />
+              <div className="space-y-8">
+                {/* Photos Subsection */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4">Work Photos</h4>
+                  <div className="space-y-4">
+                    {formData.photos.map((photo, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700">Photo URL {index + 1}</label>
+                            <input
+                              type="url"
+                              value={photo}
+                              onChange={(e) => updatePhoto(index, e.target.value)}
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                              placeholder="https://example.com/photo.jpg"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(index)}
+                            className="mt-6 text-red-600 hover:text-red-900"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Or Upload Photo {index + 1}</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const updatedPhotos = [...formData.photos];
+                                updatedPhotos[index] = file.name;
+                                setFormData({ ...formData, photos: updatedPhotos });
+                              }
+                            }}
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(index)}
-                        className="mt-6 text-red-600 hover:text-red-900"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Or Upload Photo {index + 1}</label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const updatedPhotos = [...formData.photos];
-                            updatedPhotos[index] = file.name;
-                            setFormData({ ...formData, photos: updatedPhotos });
-                          }
-                        }}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                      />
-                    </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+                {/* Videos Subsection */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4">Work Videos</h4>
+                  <div className="space-y-4">
+                    {formData.videos.map((video, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700">Video URL {index + 1}</label>
+                            <input
+                              type="url"
+                              value={video}
+                              onChange={(e) => updateVideo(index, e.target.value)}
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                              placeholder="https://example.com/video.mp4"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeVideo(index)}
+                            className="mt-6 text-red-600 hover:text-red-900"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Or Upload Video {index + 1}</label>
+                          <input
+                            type="file"
+                            accept="video/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const updatedVideos = [...formData.videos];
+                                updatedVideos[index] = file.name;
+                                setFormData({ ...formData, videos: updatedVideos });
+                              }
+                            }}
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 

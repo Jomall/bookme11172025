@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClients, addClient, updateClient, deleteClient } from '@/lib/data';
+import { getAllClients, addClient, updateClient, deleteClient } from '@/lib/data';
 import { Client } from '@/types';
 
 export async function GET(request: NextRequest) {
@@ -7,13 +7,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (id) {
-      const client = getClients().find(client => client.id === id);
+      const client = getAllClients().find(client => client.id === id);
       if (!client) {
         return NextResponse.json({ error: 'Client not found' }, { status: 404 });
       }
       return NextResponse.json(client);
     }
-    const clients = getClients();
+    const clients = getAllClients();
     return NextResponse.json(clients);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch clients' }, { status: 500 });
